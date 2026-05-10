@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ClientData } from '../App';
-import { Search, Edit2, Trash2, Phone, Calendar, Info, Filter, ExternalLink, Cpu, AppWindow, ShieldCheck, Hash } from 'lucide-react';
+import { Search, Edit2, Trash2, Phone, Calendar, Info, Filter, ExternalLink, Cpu, AppWindow, ShieldCheck, Hash, User, Key } from 'lucide-react';
 import { db, auth } from '../lib/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';

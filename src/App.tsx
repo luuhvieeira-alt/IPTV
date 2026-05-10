@@ -6,19 +6,9 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { auth, db } from './lib/firebase';
 import { 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut,
-  User 
-} from 'firebase/auth';
-import { 
   collection, 
   query, 
-  where, 
-  onSnapshot, 
-  doc, 
-  getDocFromServer,
+  onSnapshot,
   Timestamp 
 } from 'firebase/firestore';
 import { 
@@ -75,9 +65,13 @@ export default function App() {
 
   // Check session
   useEffect(() => {
-    const session = sessionStorage.getItem('iptv_auth');
-    if (session === 'true') {
-      setIsLoggedIn(true);
+    try {
+      const session = sessionStorage.getItem('iptv_auth');
+      if (session === 'true') {
+        setIsLoggedIn(true);
+      }
+    } catch (e) {
+      console.warn("Storage access failed:", e);
     }
   }, []);
 
@@ -87,16 +81,6 @@ export default function App() {
       return;
     }
 
-    // Validate connection
-    const testConnection = async () => {
-      try {
-        await getDocFromServer(doc(db, 'test', 'connection'));
-      } catch (error) {
-        console.error("Connection check failed", error);
-      }
-    };
-    testConnection();
-
     // Fetch all clients (single admin system)
     const q = query(collection(db, 'clients'));
 
@@ -105,7 +89,6 @@ export default function App() {
         id: doc.id,
         ...doc.data()
       })) as ClientData[];
-      // Sort by status and name
       setClients(docs);
     }, (error) => {
       console.error("Firestore Error: ", error);
@@ -120,7 +103,11 @@ export default function App() {
     
     if (loginForm.username === 'admin' && loginForm.password === '1234') {
       setIsLoggedIn(true);
-      sessionStorage.setItem('iptv_auth', 'true');
+      try {
+        sessionStorage.setItem('iptv_auth', 'true');
+      } catch (e) {
+        console.warn("Failed to set session:", e);
+      }
     } else {
       setLoginError('Credenciais inválidas. Tente novamente.');
     }
@@ -128,7 +115,11 @@ export default function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    sessionStorage.removeItem('iptv_auth');
+    try {
+      sessionStorage.removeItem('iptv_auth');
+    } catch (e) {
+      console.warn("Failed to clear session:", e);
+    }
   };
 
   if (!isLoggedIn) {
