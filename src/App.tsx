@@ -283,7 +283,7 @@ export default function App() {
           <div className="flex gap-6 items-center">
             <div className="flex flex-col items-end border-r border-slate-800 pr-6">
               <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Base de Clientes</span>
-              <span className="text-lg font-bold text-blue-500">{clients.length} / 500</span>
+              <span className="text-lg font-bold text-blue-500">{clients.length}</span>
             </div>
             <button 
               onClick={() => setActiveTab('cadastro')}
