@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if true;
+    }
+
+    // Mantendo a estrutura para compatibilidade, mas removendo a trava de Auth
+    match /clients/{clientId} {
+      allow read, write: if true;
+    }
+  }
+}

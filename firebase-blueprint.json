@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "Client": {
+      "title": "Client",
+      "description": "Dados do cliente de IPTV",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nome completo do cliente" },
+        "whatsapp": { "type": "string", "description": "Número do WhatsApp" },
+        "plan": { "type": "string", "description": "Plano contratado" },
+        "status": { "type": "string", "description": "Status da conta", "enum": ["Ativo", "Pendente", "Inativo"] },
+        "points": { "type": "integer", "description": "Quantidade de pontos/telas" },
+        "monthlyValue": { "type": "number", "description": "Valor pago por mês" },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "appName": { "type": "string" },
+              "macAddress": { "type": "string" },
+              "macPassword": { "type": "string" }
+            }
+          }
+        },
+        "hasBackupServer": { "type": "boolean", "description": "Indica se possui servidor reserva" },
+        "backupServerName": { "type": "string", "description": "Nome do servidor reserva" },
+        "backupLogin": { "type": "string", "description": "Login do servidor reserva" },
+        "backupExpirationDate": { "type": "string", "format": "date-time", "description": "Vencimento do servidor reserva" },
+        "startDate": { "type": "string", "format": "date-time", "description": "Data de início" },
+        "expirationDate": { "type": "string", "format": "date-time", "description": "Data de vencimento" },
+        "notes": { "type": "string", "description": "Observações adicionais" },
+        "ownerId": { "type": "string", "description": "ID do administrador que cadastrou" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "whatsapp", "expirationDate", "ownerId"]
+    }
+  },
+  "firestore": {
+    "clients": {
+      "schema": "Client",
+      "description": "Coleção de clientes gerenciados pelo sistema"
+    }
+  }
+}
