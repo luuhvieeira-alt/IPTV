@@ -47,6 +47,7 @@ export interface ClientData {
   backupExpirationDate?: Timestamp;
   startDate?: Timestamp;
   expirationDate: Timestamp;
+  serverName?: string;
   notes?: string;
   ownerId: string;
   createdAt: Timestamp;

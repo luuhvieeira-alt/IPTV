@@ -136,6 +136,11 @@ export function ClientList({ clients }: ClientListProps) {
                         <span className="text-[11px] uppercase font-bold px-3 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                           {client.plan}
                         </span>
+                        {client.serverName && (
+                          <span className="text-[11px] uppercase font-bold px-3 py-1 rounded bg-slate-500/10 text-slate-400 border border-slate-500/20 flex items-center gap-1">
+                            <Cpu size={10} className="shrink-0" /> {client.serverName}
+                          </span>
+                        )}
                         {client.points > 1 && (
                           <span className="text-[11px] uppercase font-bold px-3 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1">
                             <Hash size={8} /> {client.points}

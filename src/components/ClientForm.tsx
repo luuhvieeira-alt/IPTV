@@ -50,6 +50,7 @@ export function ClientForm({ editClient, onComplete, onCancel }: ClientFormProps
     backupLogin: editClient?.backupLogin || '',
     backupExpirationDate: editClient?.backupExpirationDate?.toDate().toISOString().split('T')[0] || '',
     expirationDate: editClient?.expirationDate.toDate().toISOString().split('T')[0] || '',
+    serverName: editClient?.serverName || '',
     notes: editClient?.notes || ''
   });
 
@@ -98,6 +99,7 @@ export function ClientForm({ editClient, onComplete, onCancel }: ClientFormProps
           ? Timestamp.fromDate(new Date(formData.backupExpirationDate + 'T12:00:00')) 
           : null,
         expirationDate: Timestamp.fromDate(new Date(formData.expirationDate + 'T12:00:00')),
+        serverName: formData.serverName,
         notes: formData.notes,
         ownerId: 'admin',
         updatedAt: serverTimestamp(),
@@ -351,6 +353,19 @@ export function ClientForm({ editClient, onComplete, onCancel }: ClientFormProps
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div className="md:col-span-2 space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <Cpu size={14} /> Servidor do Cliente
+          </label>
+          <input 
+            type="text"
+            placeholder="Nome do servidor (ex: Servidor Gold, Prime, etc)"
+            value={formData.serverName}
+            onChange={(e) => setFormData({...formData, serverName: e.target.value})}
+            className="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all font-bold placeholder:text-slate-700"
+          />
+        </div>
 
         <div className="md:col-span-2 space-y-2">
           <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
