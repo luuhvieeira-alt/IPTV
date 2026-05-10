@@ -19,7 +19,18 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
 
   const expired = clients.filter(c => isBefore(c.expirationDate.toDate(), today));
   
-  const monthlyRevenue = activeClients.reduce((acc, curr) => acc + (curr.monthlyValue || 0), 0);
+  const getMultiplier = (plan: string) => {
+    if (plan === '2 Meses') return 2;
+    if (plan === 'Trimestral') return 3;
+    if (plan === 'Semestral') return 6;
+    if (plan === 'Anual') return 12;
+    return 1;
+  };
+
+  const totalContractValue = activeClients.reduce((acc, curr) => {
+    const multiplier = getMultiplier(curr.plan);
+    return acc + (curr.monthlyValue * multiplier);
+  }, 0);
 
   return (
     <div className="space-y-8 pb-10">
@@ -31,8 +42,8 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           icon={<DollarSign className="text-emerald-400" />} 
-          title="Faturamento Mensal" 
-          value={`R$ ${monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
+          title="Faturamento Total" 
+          value={`R$ ${totalContractValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
           bgColor="bg-emerald-500/10"
         />
         <StatCard 

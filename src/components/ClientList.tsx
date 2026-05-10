@@ -119,20 +119,25 @@ export function ClientList({ clients }: ClientListProps) {
 
                   <div className="space-y-3">
                     <div>
-                      <h3 className="font-bold text-base leading-tight truncate text-slate-100">{client.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-base leading-tight truncate text-slate-100">{client.name}</h3>
+                        <span className="text-xs font-bold text-emerald-400">
+                          R$ {client.monthlyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded border ${
+                        <span className={`text-[11px] uppercase font-bold px-3 py-1 rounded border ${
                           isExpired 
                             ? 'bg-red-500/10 text-red-400 border-red-500/20' 
                             : 'bg-green-500/10 text-green-400 border-green-500/20'
                         }`}>
                           {isExpired ? 'Expirado' : client.status}
                         </span>
-                        <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <span className="text-[11px] uppercase font-bold px-3 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                           {client.plan}
                         </span>
                         {client.points > 1 && (
-                          <span className="text-[9px] uppercase font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1">
+                          <span className="text-[11px] uppercase font-bold px-3 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1">
                             <Hash size={8} /> {client.points}
                           </span>
                         )}
