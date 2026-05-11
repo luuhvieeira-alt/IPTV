@@ -32,6 +32,15 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
     return acc + (curr.monthlyValue * multiplier);
   }, 0);
 
+  const renewalsThisMonth = clients.filter(c => {
+    if (!c.lastRenewalDate) return false;
+    const renewalDate = c.lastRenewalDate.toDate();
+    const now = new Date();
+    return renewalDate.getMonth() === now.getMonth() && renewalDate.getFullYear() === now.getFullYear();
+  });
+
+  const totalRenewedValue = renewalsThisMonth.reduce((acc, curr) => acc + (curr.monthlyValue || 0), 0);
+
   return (
     <div className="space-y-8 pb-10">
       <div className="md:hidden">
@@ -54,8 +63,8 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
         />
         <StatCard 
           icon={<CheckCircle2 className="text-green-400" />} 
-          title="Assinantes Ativos" 
-          value={activeClients.length.toString()} 
+          title="Renovado no Mês" 
+          value={`R$ ${totalRenewedValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
           bgColor="bg-green-500/10"
         />
         <StatCard 

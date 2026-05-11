@@ -20,12 +20,14 @@ import {
   Search, 
   AlertCircle,
   Menu,
-  X
+  X,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ClientForm } from './components/ClientForm';
 import { ClientList } from './components/ClientList';
 import { VencimentosCalendar } from './components/VencimentosCalendar';
+import { Credits } from './components/Credits';
 import { Dashboard } from './components/Dashboard';
 
 export interface ClientData {
@@ -48,12 +50,23 @@ export interface ClientData {
   startDate?: Timestamp;
   expirationDate: Timestamp;
   serverName?: string;
+  lastRenewalDate?: Timestamp;
   notes?: string;
   ownerId: string;
   createdAt: Timestamp;
 }
 
-type Tab = 'dashboard' | 'cadastro' | 'clientes' | 'calendario';
+export interface CreditData {
+  id: string;
+  date: Timestamp;
+  value: number;
+  quantity: number;
+  serverName: string;
+  ownerId: string;
+  createdAt: Timestamp;
+}
+
+type Tab = 'dashboard' | 'cadastro' | 'clientes' | 'calendario' | 'creditos';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,6 +74,7 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<ClientData[]>([]);
+  const [credits, setCredits] = useState<CreditData[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -95,7 +109,21 @@ export default function App() {
       console.error("Firestore Error: ", error);
     });
 
-    return unsub;
+    const creditsQuery = query(collection(db, 'credits'));
+    const unsubCredits = onSnapshot(creditsQuery, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as CreditData[];
+      setCredits(docs);
+    }, (error) => {
+      console.error("Firestore Credits Error: ", error);
+    });
+
+    return () => {
+      unsub();
+      unsubCredits();
+    };
   }, [isLoggedIn]);
 
   const handleLogin = (e: FormEvent) => {
@@ -247,6 +275,12 @@ export default function App() {
                 active={activeTab === 'calendario'} 
                 onClick={() => { setActiveTab('calendario'); setIsSidebarOpen(false); }} 
               />
+              <SidebarItem 
+                icon={<CreditCard size={18} />} 
+                label="Créditos" 
+                active={activeTab === 'creditos'} 
+                onClick={() => { setActiveTab('creditos'); setIsSidebarOpen(false); }} 
+              />
             </nav>
 
             <div className="mt-auto pt-6 border-t border-slate-800">
@@ -280,6 +314,7 @@ export default function App() {
             {activeTab === 'cadastro' && 'Cadastrar Novo Cliente'}
             {activeTab === 'clientes' && 'Listagem de Clientes'}
             {activeTab === 'calendario' && 'Calendário de Cobrança'}
+            {activeTab === 'creditos' && 'Controle de Créditos'}
           </h1>
           <div className="flex gap-6 items-center">
             <div className="flex flex-col items-end border-r border-slate-800 pr-6">
@@ -301,6 +336,7 @@ export default function App() {
             {activeTab === 'cadastro' && <ClientForm onComplete={() => setActiveTab('clientes')} />}
             {activeTab === 'clientes' && <ClientList clients={clients} />}
             {activeTab === 'calendario' && <VencimentosCalendar clients={clients} />}
+            {activeTab === 'creditos' && <Credits credits={credits} />}
           </div>
         </div>
       </main>

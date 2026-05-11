@@ -1,5 +1,12 @@
 import { useState } from 'react';
 import { ClientData } from '../App';
+import { db } from '../lib/firebase';
+import { 
+  doc, 
+  updateDoc, 
+  serverTimestamp, 
+  Timestamp 
+} from 'firebase/firestore';
 import { 
   format, 
   addMonths, 
@@ -25,6 +32,11 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [selectedClient, setSelectedClient] = useState<ClientData | null>(null);
+  const [isRenewing, setIsRenewing] = useState(false);
+  const [renewalData, setRenewalData] = useState({
+    value: 0,
+    newDate: ''
+  });
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -137,7 +149,13 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     key={client.id}
-                    onClick={() => setSelectedClient(client)}
+                    onClick={() => {
+                      setSelectedClient(client);
+                      setRenewalData({
+                        value: client.monthlyValue,
+                        newDate: format(addMonths(client.expirationDate.toDate(), 1), 'yyyy-MM-dd')
+                      });
+                    }}
                     className="p-4 bg-[#0B1120] rounded-lg border border-slate-800 flex items-center gap-4 hover:border-blue-500/50 hover:bg-[#1E293B] transition-all cursor-pointer group"
                   >
                     <div className="w-10 h-10 bg-blue-500/10 rounded flex items-center justify-center text-blue-500 shrink-0 font-bold border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-colors">
@@ -262,22 +280,112 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => {
-                    if (selectedClient.phone) {
-                      const cleanPhone = selectedClient.phone.replace(/\D/g, '');
-                      window.open(`https://wa.me/55${cleanPhone}`, '_blank');
-                    }
-                  }}
-                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-3 group active:scale-[0.98]"
-                >
-                  <MessageSquare size={20} className="group-hover:scale-110 transition-transform" />
-                  COBRAR PELO WHATSAPP
-                </button>
+                <div className="space-y-3 pt-2">
+                  <button 
+                    onClick={() => {
+                      if (selectedClient.phone) {
+                        const cleanPhone = selectedClient.phone.replace(/\D/g, '');
+                        window.open(`https://wa.me/55${cleanPhone}`, '_blank');
+                      }
+                    }}
+                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-3 group active:scale-[0.98]"
+                  >
+                    <MessageSquare size={20} className="group-hover:scale-110 transition-transform" />
+                    COBRAR PELO WHATSAPP
+                  </button>
+
+                  <button 
+                    onClick={() => setIsRenewing(true)}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 group active:scale-[0.98]"
+                  >
+                    <Award size={20} className="group-hover:scale-110 transition-transform" />
+                    RENOVADO
+                  </button>
+                </div>
 
                 <p className="text-[10px] text-center text-slate-500 font-bold uppercase tracking-[.15em]">
                   Referência: Expira em {format(selectedClient.expirationDate.toDate(), "dd/MM/yyyy")}
                 </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Renewal Confirmation Modal */}
+      <AnimatePresence>
+        {isRenewing && selectedClient && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRenewing(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-sm bg-[#1E293B] border border-slate-700 rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-slate-700 bg-blue-600/10">
+                <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Award className="text-blue-500" /> Renovar Cliente
+                </h4>
+                <p className="text-xs text-slate-400 mt-1 font-bold uppercase tracking-wider">
+                  Atualizando: {selectedClient.name}
+                </p>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Valor da Mensalidade (R$)</label>
+                  <input 
+                    type="number"
+                    value={renewalData.value}
+                    onChange={(e) => setRenewalData({...renewalData, value: parseFloat(e.target.value)})}
+                    className="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:border-blue-500 outline-none transition-all"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Próximo Vencimento</label>
+                  <input 
+                    type="date"
+                    value={renewalData.newDate}
+                    onChange={(e) => setRenewalData({...renewalData, newDate: e.target.value})}
+                    className="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:border-blue-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button 
+                    onClick={() => setIsRenewing(false)}
+                    className="flex-1 py-3 border border-slate-700 hover:bg-slate-800 text-slate-400 rounded-xl font-bold transition-all uppercase text-xs"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    onClick={async () => {
+                      try {
+                        const clientRef = doc(db, 'clients', selectedClient.id);
+                        await updateDoc(clientRef, {
+                          monthlyValue: renewalData.value,
+                          expirationDate: Timestamp.fromDate(new Date(renewalData.newDate + 'T12:00:00')),
+                          updatedAt: serverTimestamp(),
+                          lastRenewalDate: serverTimestamp()
+                        });
+                        setIsRenewing(false);
+                        setSelectedClient(null);
+                      } catch (error) {
+                        console.error("Erro ao renovar cliente:", error);
+                      }
+                    }}
+                    className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all uppercase text-xs shadow-lg shadow-blue-600/20"
+                  >
+                    Salvar Renovação
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

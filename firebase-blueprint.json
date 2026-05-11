@@ -29,18 +29,37 @@
         "startDate": { "type": "string", "format": "date-time", "description": "Data de início" },
         "expirationDate": { "type": "string", "format": "date-time", "description": "Data de vencimento" },
         "serverName": { "type": "string", "description": "Nome do servidor que o cliente está" },
+        "lastRenewalDate": { "type": "string", "format": "date-time", "description": "Data da última renovação realizada" },
         "notes": { "type": "string", "description": "Observações adicionais" },
         "ownerId": { "type": "string", "description": "ID do administrador que cadastrou" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "whatsapp", "expirationDate", "ownerId"]
+    },
+    "Credit": {
+      "title": "Crédito",
+      "description": "Lançamento de compra de créditos",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time", "description": "Data da compra" },
+        "value": { "type": "number", "description": "Valor total investido" },
+        "quantity": { "type": "number", "description": "Quantidade de créditos comprados" },
+        "serverName": { "type": "string", "description": "Servidor/Painel" },
+        "ownerId": { "type": "string", "description": "ID do administrador" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "value", "quantity", "serverName", "ownerId"]
     }
   },
   "firestore": {
     "clients": {
       "schema": "Client",
       "description": "Coleção de clientes gerenciados pelo sistema"
+    },
+    "credits": {
+      "schema": "Credit",
+      "description": "Lançamentos de investimentos em créditos"
     }
   }
 }
