@@ -71,9 +71,28 @@ export function ClientForm({ editClient, onComplete, onCancel }: ClientFormProps
     setFormData({ ...formData, points, devices: currentDevices });
   };
 
+  const formatMAC = (value: string) => {
+    // Remove all non-alphanumeric characters and convert to uppercase
+    const cleaned = value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    
+    // Split into pairs and join with colons
+    const parts = [];
+    for (let i = 0; i < cleaned.length && i < 12; i += 2) {
+      parts.push(cleaned.substring(i, i + 2));
+    }
+    
+    return parts.join(':');
+  };
+
   const handleDeviceChange = (index: number, field: string, value: string) => {
     const newDevices = [...formData.devices];
-    newDevices[index] = { ...newDevices[index], [field]: value };
+    let finalValue = value;
+
+    if (field === 'macAddress') {
+      finalValue = formatMAC(value);
+    }
+
+    newDevices[index] = { ...newDevices[index], [field]: finalValue };
     setFormData({ ...formData, devices: newDevices });
   };
 
@@ -228,7 +247,8 @@ export function ClientForm({ editClient, onComplete, onCancel }: ClientFormProps
                     <input 
                       type="text"
                       required
-                      placeholder="00:00:00:00:00"
+                      placeholder="00:00:00:00:00:00"
+                      maxLength={17}
                       value={device.macAddress}
                       onChange={(e) => handleDeviceChange(index, 'macAddress', e.target.value)}
                       className="w-full bg-[#0B1120] border border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 transition-all font-mono"
