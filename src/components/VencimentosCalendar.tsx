@@ -266,7 +266,7 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                       <Phone size={14} className="text-indigo-400" /> WhatsApp / Tel
                     </span>
                     <span className="text-slate-100 font-mono font-medium">
-                      {selectedClient.phone || '(00) 00000-0000'}
+                      {selectedClient.whatsapp || '(00) 00000-0000'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -283,8 +283,8 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                 <div className="space-y-3 pt-2">
                   <button 
                     onClick={() => {
-                      if (selectedClient.phone) {
-                        const cleanPhone = selectedClient.phone.replace(/\D/g, '');
+                      if (selectedClient.whatsapp) {
+                        const cleanPhone = selectedClient.whatsapp.replace(/\D/g, '');
                         window.open(`https://wa.me/55${cleanPhone}`, '_blank');
                       }
                     }}
