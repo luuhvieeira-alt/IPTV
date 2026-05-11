@@ -29,7 +29,7 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
 
   const totalContractValue = activeClients.reduce((acc, curr) => {
     const multiplier = getMultiplier(curr.plan);
-    return acc + (curr.monthlyValue * multiplier);
+    return acc + (curr.monthlyValue * (curr.points || 1) * multiplier);
   }, 0);
 
   const renewalsThisMonth = clients.filter(c => {
@@ -39,7 +39,7 @@ export function Dashboard({ clients, onNavigate }: DashboardProps) {
     return renewalDate.getMonth() === now.getMonth() && renewalDate.getFullYear() === now.getFullYear();
   });
 
-  const totalRenewedValue = renewalsThisMonth.reduce((acc, curr) => acc + (curr.monthlyValue || 0), 0);
+  const totalRenewedValue = renewalsThisMonth.reduce((acc, curr) => acc + ((curr.monthlyValue * (curr.points || 1)) || 0), 0);
 
   return (
     <div className="space-y-8 pb-10">

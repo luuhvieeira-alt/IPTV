@@ -152,7 +152,7 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                     onClick={() => {
                       setSelectedClient(client);
                       setRenewalData({
-                        value: client.monthlyValue,
+                        value: client.monthlyValue * (client.points || 1),
                         newDate: format(addMonths(client.expirationDate.toDate(), 1), 'yyyy-MM-dd')
                       });
                     }}
@@ -165,7 +165,7 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                       <p className="font-bold text-sm text-slate-100 truncate group-hover:text-blue-400">{client.name}</p>
                       <div className="flex items-center gap-2">
                         <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">{client.plan}</p>
-                        <span className="text-[10px] text-emerald-400 font-bold">R$ {client.monthlyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">R$ {(client.monthlyValue * (client.points || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -236,7 +236,7 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                       <DollarSign size={12} className="text-emerald-500" /> Valor Pago
                     </span>
                     <span className="text-lg font-bold text-emerald-400">
-                      R$ {selectedClient.monthlyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      R$ {(selectedClient.monthlyValue * (selectedClient.points || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="bg-[#0B1120] p-4 rounded-xl border border-slate-800 flex flex-col gap-1">
@@ -346,6 +346,11 @@ export function VencimentosCalendar({ clients }: VencimentosCalendarProps) {
                     onChange={(e) => setRenewalData({...renewalData, value: parseFloat(e.target.value)})}
                     className="w-full bg-[#0B1120] border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:border-blue-500 outline-none transition-all"
                   />
+                  {selectedClient.points > 1 && (
+                    <p className="text-[9px] text-blue-400 font-bold mt-1 uppercase tracking-wider flex items-center gap-1">
+                      <Award size={10} /> Valor multiplicado por {selectedClient.points} pontos
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">

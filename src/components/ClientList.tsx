@@ -122,7 +122,7 @@ export function ClientList({ clients }: ClientListProps) {
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-base leading-tight truncate text-slate-100">{client.name}</h3>
                         <span className="text-xs font-bold text-emerald-400">
-                          R$ {client.monthlyValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          R$ {(client.monthlyValue * (client.points || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
